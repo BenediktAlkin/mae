@@ -1,3 +1,6 @@
+## Changes in fork
+- Fixed issues with newer pytorch versions and timm 0.3.2 by hard-copying timm==0.3.2 into the repo. Follow SETUP.md to setup environment.
+
 ## Masked Autoencoders: A PyTorch Implementation
 
 <p align="center">
