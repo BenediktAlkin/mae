@@ -19,7 +19,6 @@ from pathlib import Path
 
 import torch
 import torch.backends.cudnn as cudnn
-from torch.utils.tensorboard import SummaryWriter
 
 import timm
 
@@ -196,7 +195,7 @@ def main(args):
 
     if global_rank == 0 and args.log_dir is not None and not args.eval:
         os.makedirs(args.log_dir, exist_ok=True)
-        log_writer = SummaryWriter(log_dir=args.log_dir)
+        log_writer = None
     else:
         log_writer = None
 

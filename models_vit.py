@@ -53,6 +53,13 @@ class VisionTransformer(timm.models.vision_transformer.VisionTransformer):
         return outcome
 
 
+def vit_debug_patch16(**kwargs):
+    model = VisionTransformer(
+        patch_size=16, embed_dim=16, depth=2, num_heads=2, mlp_ratio=1, qkv_bias=True,
+        norm_layer=partial(nn.LayerNorm, eps=1e-6), **kwargs)
+    return model
+
+
 def vit_base_patch16(**kwargs):
     model = VisionTransformer(
         patch_size=16, embed_dim=768, depth=12, num_heads=12, mlp_ratio=4, qkv_bias=True,
