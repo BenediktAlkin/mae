@@ -108,7 +108,7 @@ def get_args_parser():
                         help='How to apply mixup/cutmix params. Per "batch", "pair", or "elem"')
 
     # * Finetuning params
-    parser.add_argument('--finetune', default='',
+    parser.add_argument('--finetune',
                         help='finetune from checkpoint')
     parser.add_argument('--global_pool', action='store_true')
     parser.set_defaults(global_pool=True)
@@ -156,7 +156,7 @@ def get_args_parser():
 
 def main(args):
     args.data_path = Path(args.data_path).expanduser().as_posix()
-    args.finetune = Path(args.finetune).expanduser().as_posix()
+    args.finetune = Path(args.finetune).expanduser().as_posix() if args.finetune is not None else None
     misc.init_distributed_mode(args)
 
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
@@ -175,8 +175,11 @@ def main(args):
     dataset_val = build_dataset(is_train=False, args=args)
 
     # for debugging transform
-    # dataset_train_debug = build_dataset(is_train=True, args=args)
-    # x0 = dataset_train_debug[0]
+    dataset_train_debug = build_dataset(is_train=True, args=args)
+    x0 = dataset_train_debug[0]
+    x1 = dataset_train_debug[1]
+    x2 = dataset_train_debug[2]
+    x3 = dataset_train_debug[3]
 
     sampler_train = torch.utils.data.SequentialSampler(dataset_train)
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
