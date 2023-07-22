@@ -156,6 +156,7 @@ def get_args_parser():
 
 def main(args):
     args.data_path = Path(args.data_path).expanduser().as_posix()
+    args.finetune = Path(args.finetune).expanduser().as_posix()
     misc.init_distributed_mode(args)
 
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
@@ -234,7 +235,10 @@ def main(args):
         checkpoint = torch.load(args.finetune, map_location='cpu')
 
         print("Load pre-trained checkpoint from: %s" % args.finetune)
-        checkpoint_model = checkpoint['model']
+        if "model" in checkpoint:
+            checkpoint_model = checkpoint['model']
+        else:
+            checkpoint_model = checkpoint
         state_dict = model.state_dict()
         for k in ['head.weight', 'head.bias']:
             if k in checkpoint_model and checkpoint_model[k].shape != state_dict[k].shape:
@@ -254,6 +258,7 @@ def main(args):
             assert set(msg.missing_keys) == {'head.weight', 'head.bias'}
 
         # manually initialize fc layer
+        torch.manual_seed(0)
         trunc_normal_(model.head.weight, std=2e-5)
 
     model.to(device)
