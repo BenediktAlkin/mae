@@ -3,6 +3,7 @@ import torch
 from models_mae import mae_vit_debug_patch16
 from pathlib import Path
 
+torch.manual_seed(0)
 out = Path("~/Documents/models").expanduser()
 out.mkdir(exist_ok=True, parents=True)
 model = mae_vit_debug_patch16()

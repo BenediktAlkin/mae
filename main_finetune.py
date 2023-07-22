@@ -171,34 +171,12 @@ def main(args):
 
     cudnn.benchmark = True
 
-    dataset_train = build_dataset(is_train=True, args=args)
+    dataset_train = build_dataset(is_train=False, args=args)
     dataset_val = build_dataset(is_train=False, args=args)
 
-    if True:  # args.distributed:
-        num_tasks = misc.get_world_size()
-        global_rank = misc.get_rank()
-        sampler_train = torch.utils.data.DistributedSampler(
-            dataset_train, num_replicas=num_tasks, rank=global_rank, shuffle=True
-        )
-        print("Sampler_train = %s" % str(sampler_train))
-        if args.dist_eval:
-            if len(dataset_val) % num_tasks != 0:
-                print('Warning: Enabling distributed evaluation with an eval dataset not divisible by process number. '
-                      'This will slightly alter validation results as extra duplicate entries are added to achieve '
-                      'equal num of samples per-process.')
-            sampler_val = torch.utils.data.DistributedSampler(
-                dataset_val, num_replicas=num_tasks, rank=global_rank, shuffle=True)  # shuffle=True to reduce monitor bias
-        else:
-            sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-    else:
-        sampler_train = torch.utils.data.RandomSampler(dataset_train)
-        sampler_val = torch.utils.data.SequentialSampler(dataset_val)
-
-    if global_rank == 0 and args.log_dir is not None and not args.eval:
-        os.makedirs(args.log_dir, exist_ok=True)
-        log_writer = None
-    else:
-        log_writer = None
+    sampler_train = torch.utils.data.SequentialSampler(dataset_train)
+    sampler_val = torch.utils.data.SequentialSampler(dataset_val)
+    log_writer = None
 
     data_loader_train = torch.utils.data.DataLoader(
         dataset_train, sampler=sampler_train,
@@ -257,11 +235,13 @@ def main(args):
         else:
             assert set(msg.missing_keys) == {'head.weight', 'head.bias'}
 
-        # manually initialize fc layer
-        torch.manual_seed(0)
-        trunc_normal_(model.head.weight, std=2e-5)
 
     model.to(device)
+
+    # manually initialize fc layer
+    torch.manual_seed(0)
+    trunc_normal_(model.head.weight, std=2e-5)
+    temp = model(torch.ones(1, 3, 224, 224, device=device, dtype=torch.float))
 
     model_without_ddp = model
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -289,6 +269,8 @@ def main(args):
         no_weight_decay_list=model_without_ddp.no_weight_decay(),
         layer_decay=args.layer_decay
     )
+    for param_group in param_groups:
+        print(f"lr_scale={param_group['lr_scale']} wd={param_group['weight_decay']} len={len(param_group['params'])}")
     optimizer = torch.optim.AdamW(param_groups, lr=args.lr)
     loss_scaler = NativeScaler()
 
