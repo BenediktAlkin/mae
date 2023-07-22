@@ -45,6 +45,7 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         # we use a per iteration (instead of per epoch) lr scheduler
         if data_iter_step % accum_iter == 0:
             cur_lr = lr_sched.adjust_learning_rate(optimizer, data_iter_step / len(data_loader) + epoch, args)
+            print(f"cur_lr={cur_lr}")
 
         samples = samples.to(device, non_blocking=True)
         targets = targets.to(device, non_blocking=True)

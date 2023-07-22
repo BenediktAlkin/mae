@@ -174,6 +174,10 @@ def main(args):
     dataset_train = build_dataset(is_train=False, args=args)
     dataset_val = build_dataset(is_train=False, args=args)
 
+    # for debugging transform
+    # dataset_train_debug = build_dataset(is_train=True, args=args)
+    # x0 = dataset_train_debug[0]
+
     sampler_train = torch.utils.data.SequentialSampler(dataset_train)
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
     log_writer = None
