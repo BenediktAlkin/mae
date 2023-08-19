@@ -156,6 +156,8 @@ def get_args_parser():
 
 def main(args):
     args.data_path = Path(args.data_path).expanduser().as_posix()
+    args.output_dir = Path(args.output_dir).expanduser().as_posix()
+    args.log_dir = Path(args.log_dir).expanduser().as_posix()
     misc.init_distributed_mode(args)
 
     print('job dir: {}'.format(os.path.dirname(os.path.realpath(__file__))))
