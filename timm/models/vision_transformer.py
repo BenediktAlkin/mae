@@ -23,6 +23,7 @@ Hacked together by / Copyright 2020 Ross Wightman
 import einops
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from functools import partial
 
 from timm.data import IMAGENET_DEFAULT_MEAN, IMAGENET_DEFAULT_STD
@@ -126,8 +127,9 @@ class Attention(nn.Module):
 class NativeFlashAttention(nn.Module):
     """ timm.models.vision_transformer.Attention but with scaled_dot_product_attention """
 
-    def __init__(self, dim, num_heads=8, qkv_bias=False, attn_drop=0., proj_drop=0.):
+    def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.):
         super().__init__()
+        assert qk_scale is None
         assert hasattr(F, "scaled_dot_product_attention")
         assert attn_drop == 0 and proj_drop == 0, "F.scaled_dot_product_attention dropout has no train/eval mode"
         assert dim % num_heads == 0, "dim should be divisible by num_heads"
